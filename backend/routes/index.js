@@ -3,4 +3,6 @@ const router = express.Router();
 router.get("/", (req, res) => res.send("Hello World!"));
 
 router.use("/img", require("./img"));
+router.use("/cp", require("./cp"));
+router.use("/auth", require("./auth"));
 module.exports = router;
