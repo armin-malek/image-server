@@ -11,6 +11,7 @@ router.post("/", async (req, res) => {
   try {
     let { img } = req.body;
 
+    // get user Customer Table info
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
       select: { Customer: { select: { id: true, storageUsed: true } } },
@@ -23,6 +24,8 @@ router.post("/", async (req, res) => {
     const remainingStorage = maxStorage.minus(user.Customer.storageUsed);
     // console.log("remainingStorage", remainingStorage);
     // console.log("metaData.size", metaData.size);
+
+    // check if user has enough storage capacity
     if (remainingStorage.lt(metaData.size))
       return res.send({
         ok: false,
@@ -55,7 +58,9 @@ router.post("/", async (req, res) => {
     return res.send({
       ok: true,
       fileName: uploadedFile.fileName,
-      remainingStorage: new BigNumber(customerUpdate.storageUsed).toString(),
+      remainingStorage: maxStorage
+        .minus(new BigNumber(customerUpdate.storageUsed))
+        .toString(),
     });
   } catch (err) {
     console.log(err);

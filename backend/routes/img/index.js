@@ -9,7 +9,7 @@ const { BigNumber } = require("bignumber.js");
 router.get("/", (req, res) => res.send("image Route!"));
 
 // list of available image widths
-const widthList = [50, 150, 320, 500, 750, 1080];
+const widthList = [50, 150, 320, 500, 750, 900, 1080];
 
 // handle image request
 router.get("/:imageName", async (req, res) => {
@@ -17,11 +17,15 @@ router.get("/:imageName", async (req, res) => {
     const startTime = Date.now();
     const { imageName } = req.params;
     let { width } = req.query;
-    width = width ? parseInt(width) : 500;
+
+    width = width ? parseInt(width) : 900;
+
+    // select closet width value
     width = widthList.reduce(function (prev, curr) {
       return Math.abs(curr - width) < Math.abs(prev - width) ? curr : prev;
     });
     // check if files exists in DataBase
+
     const fileInDB = await prisma.file.findUnique({
       where: { fileName: imageName },
       select: {
@@ -34,6 +38,7 @@ router.get("/:imageName", async (req, res) => {
       return res.status(404).send("404 - NOT FOUND");
     }
 
+    // prepare cached file name
     let cacheFileName = `cache/${imageName.split(".")[0]}-${width}.${
       imageName.split(".")[1]
     }`;
@@ -84,11 +89,6 @@ router.get("/:imageName", async (req, res) => {
       .putObject({ Bucket: S3_BUCKET, Key: cacheFileName, Body: image })
       .promise();
 
-    const remainingTraffic =
-      BigInt(50 * 1024 * 1024 * 1024) - fileInDB.Customer.trafficUsed;
-    if (remainingTraffic < image.byteLength) {
-      return res.status(503).send("Traffic limit reached");
-    }
     await prisma.customer.update({
       where: { id: fileInDB.Customer.id },
       data: { trafficUsed: { increment: BigInt(image.byteLength) } },

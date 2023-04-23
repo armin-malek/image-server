@@ -14,17 +14,21 @@ router.post("/", async (req, res) => {
   const { email, password } = req.body;
 
   try {
+    // find email in database
     let user = await prisma.user.findUnique({
       where: { email: email },
       select: { id: true, password: true },
     });
+    // check if user exists
     if (!user) {
       res.send({
         ok: false,
-        msg: "شماره موبایل یا کلمه عبور وارد شده صحیح نیست",
+        msg: "ایمیل یا کلمه عبور وارد شده صحیح نیست",
       });
       return;
     }
+    // check if password is correct
+
     bcrypt.compare(password, user.password, async (err, isMatch) => {
       if (err) throw err;
       if (isMatch) {
@@ -33,6 +37,7 @@ router.post("/", async (req, res) => {
         const jwtToken = jwt.sign({ id: user.id }, jwtsecret, {
           expiresIn: jwtexp,
         });
+        // set cookie
         res.cookie("jwt", jwtToken, {
           httpOnly: true,
           sameSite: "None",
@@ -40,39 +45,10 @@ router.post("/", async (req, res) => {
           maxAge: jwtexp,
         });
         return res.send({ ok: true, msg: "ورود موفق" });
-        /*
-        const refreshToken = jwt.sign(user, refreshsecret, {
-          expiresIn: jwtrefreshexp,
-        });
-        await redis.rPush("refreshTokens", refreshToken);
-        
-        res.cookie("jwt", refreshToken, {
-            httpOnly: true,
-            sameSite: "None",
-            secure: true,
-            maxAge: 24 * 60 * 60 * 1000,
-        });
-        */
-        /*
-        if (user.mobileVerfied === false) {
-          return res.send({
-            success: true,
-            action: "verifyMobile",
-            msg: "باید شماره موبایل خود را تایید کنید",
-            accesstoken: jwtToken,
-          });
-        }
-        return res.send({
-          success: true,
-          action: "continue",
-          msg: "با موفقیت وارد شدید",
-          accesstoken: jwtToken,
-        });
-        */
       } else {
         res.send({
           ok: false,
-          msg: "شماره موبایل یا کلمه عبور وارد شده صحیح نیست",
+          msg: "ایمیل یا کلمه عبور وارد شده صحیح نیست",
         });
         return;
       }
