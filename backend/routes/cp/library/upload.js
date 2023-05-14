@@ -19,7 +19,7 @@ router.post("/", async (req, res) => {
 
     img = base64TOBuffer(img);
     const metaData = await sharp(img).metadata();
-
+    // 50 GB
     let maxStorage = new BigNumber(5368709120);
     const remainingStorage = maxStorage.minus(user.Customer.storageUsed);
     // console.log("remainingStorage", remainingStorage);
