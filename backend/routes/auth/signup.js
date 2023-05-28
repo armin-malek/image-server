@@ -6,6 +6,9 @@ const bcrypt = require("bcryptjs");
 // ارتباط با دیتابیس
 const { prisma } = require("../../lib/db");
 const moment = require("moment");
+const JWT = require("jsonwebtoken");
+const jwtsecret = process.env.JWT_SECRET;
+const jwtexp = process.env.JWTEXP;
 
 router.post("/", async (req, res) => {
   const { email, password } = req.body;
@@ -26,7 +29,7 @@ router.post("/", async (req, res) => {
     const hash = await bcrypt.hash(password, salt);
 
     // ایجاد کاربر در دیتابیس
-    await prisma.user.create({
+    const user = await prisma.user.create({
       data: {
         email: email,
         password: hash,
@@ -34,9 +37,21 @@ router.post("/", async (req, res) => {
         dateRegistered: moment().toISOString(),
         registerIP: req.ip,
         isActive: true,
+        Customer: { create: {} },
       },
+      select: { id: true },
     });
 
+    const jwtToken = JWT.sign({ id: user.id }, jwtsecret, {
+      expiresIn: parseInt(jwtexp),
+    });
+    // set cookie
+    res.cookie("jwt", jwtToken, {
+      httpOnly: true,
+      sameSite: "None",
+      secure: false,
+      maxAge: parseInt(jwtexp),
+    });
     return res.send({ ok: true, msg: "حساب شما با موفقیت ایجاد شد." });
   } catch (err) {
     console.log(err);
