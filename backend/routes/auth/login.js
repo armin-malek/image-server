@@ -46,7 +46,7 @@ router.post("/", async (req, res) => {
           secure: false,
           maxAge: jwtexp,
         });
-        return res.send({ ok: true, msg: "ورود موفق" });
+        return res.send({ ok: true, msg: "ورود موفق", token: jwtToken });
       } else {
         res.send({
           ok: false,
