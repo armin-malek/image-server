@@ -4,7 +4,6 @@ const sharp = require("sharp");
 const { prisma } = require("../../lib/db");
 const { s3, S3_BUCKET, getObject } = require("../../lib/s3");
 const mime = require("mime-types");
-const { BigNumber } = require("bignumber.js");
 
 router.get("/", (req, res) => res.send("image Route!"));
 

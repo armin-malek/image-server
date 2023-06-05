@@ -31,11 +31,13 @@ enum UserRole {
 }
 
 model Customer {
-  id          Int    @id @default(autoincrement())
-  storageUsed BigInt @default(0)
-  trafficUsed BigInt @default(0)
-  Files       File[]
-  User        User?
+  id                       Int                       @id @default(autoincrement())
+  storageUsed              BigInt                    @default(0)
+  trafficUsed              BigInt                    @default(0)
+  Files                    File[]
+  User                     User?
+  CustomerSubscriptionPlan CustomerSubscriptionPlan?
+  Order                    Order[]
 }
 
 model File {
@@ -45,4 +47,63 @@ model File {
   Customer    Customer? @relation(fields: [customerId], references: [id])
   customerId  Int?
   viewCount   Int       @default(0)
+}
+
+model SubscriptionPlan {
+  id                       Int                        @id @default(autoincrement())
+  title                    String
+  basePrice                Int
+  bandwidthLimit           BigInt
+  storageLimit             BigInt
+  CustomerSubscriptionPlan CustomerSubscriptionPlan[]
+  isActive                 Boolean                    @default(true)
+  Order                    Order[]
+}
+
+model CustomerSubscriptionPlan {
+  id                 Int              @id @default(autoincrement())
+  Customer           Customer         @relation(fields: [customerId], references: [id])
+  customerId         Int              @unique
+  SubscriptionPlan   SubscriptionPlan @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlanId Int
+  startedAt          DateTime
+  exipresAt          DateTime
+}
+
+model Order {
+  id                 Int              @id @default(autoincrement())
+  status             OrderStatus
+  date               DateTime
+  cost               Int
+  Payment            Payment          @relation(fields: [paymentId], references: [id])
+  paymentId          Int              @unique
+  Customer           Customer         @relation(fields: [customerId], references: [id])
+  customerId         Int
+  SubscriptionPlan   SubscriptionPlan @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlanId Int
+}
+
+enum OrderStatus {
+  Unpaid
+  Faild
+  Payed
+}
+
+model Payment {
+  id                Int           @id @default(autoincrement())
+  transActionCode   String        @unique
+  gateWayRefNumber  String?
+  gateWayCardNumber String?       @db.VarChar(16)
+  userIP            String?
+  status            PaymentStatus
+  Order             Order?
+  dateCreated       DateTime
+  dateFinalized     DateTime?
+  amount            Int
+}
+
+enum PaymentStatus {
+  INPROGRESS
+  CANCELLED
+  PAYED
 }

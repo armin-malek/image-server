@@ -3,8 +3,9 @@ const { prisma } = require("../lib/db");
 const JWT_SECRET = process.env.JWT_SECRET;
 module.exports = async (req, res, next) => {
   try {
-    //export jwt from request
-    let token = req.headers["jwt"];
+    //export jwt from the Header OR cookies
+    let token = req.headers["jwt"] || req.cookies["jwt"];
+
     if (!token) {
       return res.status(401).send("باید وارد سیستم شده باشید.");
     }

@@ -13,9 +13,12 @@
   "dependencies": {
     "@prisma/client": "^4.12.0",
     "aws-sdk": "^2.1348.0",
+    "axios": "^1.4.0",
     "bcryptjs": "^2.4.3",
     "bignumber.js": "^9.1.1",
     "connect-redis": "^7.0.1",
+    "cookie-parser": "^1.4.6",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.3",
     "express": "^4.18.2",
     "express-session": "^1.17.3",
