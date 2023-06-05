@@ -27,6 +27,13 @@ router.post("/", async (req, res) => {
       },
     });
 
+    if (!user.Customer.CustomerSubscriptionPlan) {
+      return res.send({
+        ok: false,
+        msg: "برای آپلود تصویر باید پلن خریداری کنید",
+      });
+    }
+
     img = base64TOBuffer(img);
     const metaData = await sharp(img).metadata();
     // 50 GB

@@ -49,6 +49,10 @@ router.get("/:imageName", async (req, res) => {
       return res.status(404).send("404 - NOT FOUND");
     }
 
+    if (!fileInDB.Customer.CustomerSubscriptionPlan) {
+      return res.status(402).send("402 - پلن شما منقضی شده است");
+    }
+
     // prepare cached file name
     let cacheFileName = `cache/${imageName.split(".")[0]}-${width}.${
       imageName.split(".")[1]
