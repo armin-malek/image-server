@@ -30,6 +30,7 @@ router.get("/:imageName", async (req, res) => {
       .on("httpHeaders", function (statusCode, headers) {
         res.set("Content-Length", headers["content-length"]);
         res.set("Content-Type", mime.lookup(imageName));
+        // hefayat stream be Client
         this.response.httpResponse.createUnbufferedStream().pipe(res);
       })
       .send();

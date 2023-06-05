@@ -25,8 +25,9 @@ router.post("/", async (req, res) => {
     if (file.Customer.User.id != req.user.id) {
       return res.send({ ok: false, msg: "شما به این فایل دسترسی ندارید" });
     }
-
+    // hazf file az database
     await prisma.file.delete({ where: { id: fileID } });
+    //hazf file az S3
     await s3.deleteObject({ Bucket: S3_BUCKET, Key: file.fileName }).promise();
 
     res.send({ ok: true, msg: "فایل با موفقیت حذف شد" });

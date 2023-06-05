@@ -1,4 +1,4 @@
 node_modules
 imgs
 file-cache
-.env
+# .env

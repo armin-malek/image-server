@@ -5,6 +5,8 @@ const moment = require("moment");
 
 router.get("/", async (req, res) => {
   try {
+    // daryaft hame plan ha
+    // SELECT id,title,basePrice,bandwidthLimit,storageLimit FROM subscriptionPlan WHERE isActive = 1
     const plans = await prisma.subscriptionPlan.findMany({
       where: { isActive: true },
       select: {
