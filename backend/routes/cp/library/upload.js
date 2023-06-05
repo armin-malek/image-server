@@ -14,13 +14,25 @@ router.post("/", async (req, res) => {
     // get user Customer Table info
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { Customer: { select: { id: true, storageUsed: true } } },
+      select: {
+        Customer: {
+          select: {
+            id: true,
+            storageUsed: true,
+            CustomerSubscriptionPlan: {
+              select: { SubscriptionPlan: { select: { storageLimit: true } } },
+            },
+          },
+        },
+      },
     });
 
     img = base64TOBuffer(img);
     const metaData = await sharp(img).metadata();
     // 50 GB
-    let maxStorage = new BigNumber(5368709120);
+    let maxStorage = new BigNumber(
+      user.Customer.CustomerSubscriptionPlan.SubscriptionPlan.storageLimit
+    );
     const remainingStorage = maxStorage.minus(user.Customer.storageUsed);
     // console.log("remainingStorage", remainingStorage);
     // console.log("metaData.size", metaData.size);

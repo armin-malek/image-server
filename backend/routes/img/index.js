@@ -29,7 +29,19 @@ router.get("/:imageName", async (req, res) => {
       where: { fileName: imageName },
       select: {
         id: true,
-        Customer: { select: { id: true, trafficUsed: true } },
+        Customer: {
+          select: {
+            id: true,
+            trafficUsed: true,
+            CustomerSubscriptionPlan: {
+              select: {
+                SubscriptionPlan: {
+                  select: { bandwidthLimit: true },
+                },
+              },
+            },
+          },
+        },
       },
     });
 
@@ -46,7 +58,8 @@ router.get("/:imageName", async (req, res) => {
     let cachedFile = await getObject(cacheFileName);
     if (cachedFile) {
       const remainingTraffic =
-        BigInt(50 * 1024 * 1024 * 1024) - fileInDB.Customer.trafficUsed;
+        fileInDB.Customer.CustomerSubscriptionPlan.SubscriptionPlan
+          .bandwidthLimit - fileInDB.Customer.trafficUsed;
       if (remainingTraffic < cachedFile.Body.byteLength) {
         return res.status(503).send("Traffic limit reached");
       }
