@@ -1,5 +1,4 @@
 const { prisma } = require("./db");
-
 const axios = require("axios").default;
 const DOMAIN_ROOT = process.env.DOMAIN_ROOT;
 const ZIBAL_MERCHANT = process.env.ZIBAL_MERCHANT;
@@ -9,10 +8,6 @@ async function startPayment(amount, usermobile, description) {
 }
 
 async function verifyPayment(trackId, amount) {
-  let payment = await prisma.payment.findUnique({
-    where: { transActionCode: trackId.toString() },
-  });
-
   return await zibalVerifyPayment(trackId);
 }
 

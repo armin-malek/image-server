@@ -4,11 +4,9 @@ const router = express.Router();
 const moment = require("moment");
 const { verifyPayment } = require("../../lib/payment");
 const DOMAIN_FRONT = process.env.DOMAIN_FRONT;
-
 router.get("/", async (req, res) => {
   try {
     const { trackId, status, success } = req.query;
-
     let payment = await prisma.payment.findUnique({
       where: {
         transActionCode: trackId.toString(),
@@ -24,10 +22,9 @@ router.get("/", async (req, res) => {
         },
       },
     });
-
     if (!payment) {
       return res.redirect(
-        `${DOMAIN_FRONT}/cp/orders?pok=false&pmsg=${encodeURI(
+        `${DOMAIN_FRONT}/plans?pp=1&pok=false&pmsg=${encodeURI(
           "سفارش مورد نظر در سیستم وجود ندارد."
         )}`
       );
@@ -35,7 +32,7 @@ router.get("/", async (req, res) => {
 
     if (payment.status !== "INPROGRESS") {
       return res.redirect(
-        `${DOMAIN_FRONT}/cp/orders?pok=false&pmsg=${encodeURI(
+        `${DOMAIN_FRONT}/plans?pp=1&pok=false&pmsg=${encodeURI(
           "این سفارش قبلا پرداخت شده ویا لفو شده است."
         )}`
       );
@@ -43,14 +40,14 @@ router.get("/", async (req, res) => {
 
     if (success != 1) {
       return res.redirect(
-        `${DOMAIN_FRONT}/cp/orders?pok=false&pmsg=${encodeURI(
+        `${DOMAIN_FRONT}/plans?pp=1&pok=false&pmsg=${encodeURI(
           "پرداخت ناموفق!"
         )}`
       );
     }
     if (status != 1 && status != 2) {
       return res.redirect(
-        `${DOMAIN_FRONT}/cp/orders?pok=false&pmsg=${encodeURI(
+        `${DOMAIN_FRONT}/plans?pp=1&pok=false&pmsg=${encodeURI(
           "پرداخت ناموفق!"
         )}`
       );
@@ -59,7 +56,7 @@ router.get("/", async (req, res) => {
     if (!verfiedPayment) throw new Error("payment veification faild");
     if (verfiedPayment.error === true) {
       return res.redirect(
-        `${DOMAIN_FRONT}/cp/orders?pok=false&pmsg=${encodeURI(
+        `${DOMAIN_FRONT}/plans?pp=1&pok=false&pmsg=${encodeURI(
           verfiedPayment.message
         )}`
       );
@@ -80,7 +77,6 @@ router.get("/", async (req, res) => {
         },
       },
     });
-
     const subUpdate = prisma.customer.update({
       where: { id: payment.Order.Customer.id },
       data: {
@@ -100,19 +96,17 @@ router.get("/", async (req, res) => {
         },
       },
     });
-
     await prisma.$transaction([orderUpdate, subUpdate]);
     return res.redirect(
-      `${DOMAIN_FRONT}/cp/orders?pok=true&pmsg=${encodeURI(
+      `${DOMAIN_FRONT}/plans?pp=1&pok=true&pmsg=${encodeURI(
         "پلن مورد نظر فعال شد."
       )}`
     );
   } catch (err) {
     console.log(err);
     return res.redirect(
-      `${DOMAIN_FRONT}/cp/orders?pok=true&pmsg=${encodeURI("خطایی رخ داد")}`
+      `${DOMAIN_FRONT}/plans?pp=1&pok=true&pmsg=${encodeURI("خطایی رخ داد")}`
     );
   }
 });
-
 module.exports = router;
